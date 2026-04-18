@@ -595,3 +595,31 @@ window.testCreditNextMonth = function() {
   const credited = S.goals.map(g => g.name + ': ' + fmt(getCurrent(g, nextKey))).join(', ');
   toast('✓ Mai-Gutschrift: ' + credited);
 };
+
+// ── Welcome Popup ──
+window.closeWelcome = function() {
+  const el = document.getElementById('welcome-overlay');
+  if (el) {
+    el.style.opacity = '0';
+    el.style.transition = 'opacity .2s';
+    setTimeout(() => el.classList.add('hidden'), 200);
+  }
+  localStorage.setItem('phinance-welcomed', '1');
+};
+
+// Show welcome on first visit
+(function() {
+  if (localStorage.getItem('phinance-welcomed') !== '1') {
+    // Show after short delay so app loads first
+    setTimeout(function() {
+      const el = document.getElementById('welcome-overlay');
+      if (el) el.classList.remove('hidden');
+    }, 800);
+  } else {
+    // Already seen — hide immediately
+    window.addEventListener('DOMContentLoaded', function() {
+      const el = document.getElementById('welcome-overlay');
+      if (el) el.classList.add('hidden');
+    });
+  }
+})();

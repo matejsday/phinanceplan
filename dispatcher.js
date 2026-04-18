@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
     confirmAmtPopup: () => confirmAmtPopup(),
     testCreditNextMonth: () => { if(window.testCreditNextMonth) testCreditNextMonth(); },
     goToday: () => { const n=new Date(); M=n.getMonth(); Y=n.getFullYear(); syncG(); rAll(); },
+    closeWelcome: () => { if(window.closeWelcome) closeWelcome(); },
   };
 
   // ── HAUPT-KLICK-DISPATCHER ──

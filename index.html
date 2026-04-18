@@ -208,6 +208,7 @@
         <button class="sidebar-month-btn" data-action="cM" data-arg="-1">←</button>
         <span class="sidebar-month-name" id="mlbl2"></span>
         <button class="sidebar-month-btn" data-action="cM" data-arg="1">→</button>
+        <button class="sidebar-heute-btn" data-action="goToday" title="Heute">◉</button>
       </div>
     </div>
     <nav class="sidebar-nav">
@@ -277,6 +278,15 @@
 </div>
 <div class="toast" id="toast"></div>
 
+<div class="welcome-overlay hidden" id="welcome-overlay">
+  <div class="welcome-card">
+    <div class="welcome-emoji">👋</div>
+    <div class="welcome-title">Hi! Schön, dass du da bist.</div>
+    <div class="welcome-msg">Tu mir bitte einen Gefallen und gib mir Feedback nach einer Zeit. Wünsche sind ebenfalls gerne gehört :)<br><br>Enjoy your new financial stability.</div>
+    <button class="welcome-btn" data-action="closeWelcome">LFG 🚀</button>
+  </div>
+</div>
+
 <!-- FAQ SCREEN -->
 <div class="faq-screen" id="faq-screen" style="display:none">
   <div class="faq-box">
@@ -285,40 +295,122 @@
       <button class="faq-close" data-action="closeFaq">×</button>
     </div>
     <div class="faq-body">
+
       <div class="faq-section">
         <div class="faq-section-title">◈ Budget</div>
-        <div class="faq-item"><div class="faq-q">Betrag ändern</div><div class="faq-a">Klicke auf die Zahl → Popup öffnet sich → Betrag eingeben → wähle: Nur [Monat], Ab [Monat] (monatlich wiederkehrend), Ganzes Jahr, oder Abbrechen.</div></div>
-        <div class="faq-item"><div class="faq-q">Einnahmen hinzufügen</div><div class="faq-a">Klicke auf "+ Hinzufügen". Betrag eingeben → Dialog: Nur diesen Monat, Ab diesem Monat (fix), oder Ganzes Jahr.</div></div>
-        <div class="faq-item"><div class="faq-q">Ausgabe löschen</div><div class="faq-a">Klicke auf × → Dialog: Nur [Monat] (auf 0 setzen), Ab [Monat] (verschwindet ab dann), Aus ganzem Jahr (komplett), oder Abbrechen.</div></div>
-        <div class="faq-item"><div class="faq-q">Tags</div><div class="faq-a">#fix = Fixkosten (50%-Ziel) · #lifestyle = variable Ausgaben (30%-Ziel) · #sparen = Sparrate (20%-Ziel) · kein Tag = variabel, erscheint nur wenn Betrag eingetragen.</div></div>
-        <div class="faq-item"><div class="faq-q">Kategorien verschieben</div><div class="faq-a">Halte das ⠿ Symbol links beim Kategorienamen und ziehe die Kategorie an die gewünschte Position.</div></div>
-        <div class="faq-item"><div class="faq-q">Schnelleingabe</div><div class="faq-a">Klick auf den Gesamtbetrag einer Kategorie → alle Beträge auf einmal eingeben → "Alle Monate speichern".</div></div>
-        <div class="faq-item"><div class="faq-q">Notizen</div><div class="faq-a">Klicke auf das ✎ Symbol rechts bei einer Ausgabe → Notizfeld öffnet sich direkt in der Zeile.</div></div>
+
+        <div class="faq-item">
+          <div class="faq-q">Betrag eingeben oder ändern</div>
+          <div class="faq-a">Tippe auf eine Zahl. Es erscheint ein kleines Fenster — dort den Betrag eingeben. Dann wählen ob der Betrag nur für diesen Monat gilt, ab jetzt jeden Monat, oder für das ganze Jahr.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">Einnahme hinzufügen</div>
+          <div class="faq-a">Oben rechts auf "+ Hinzufügen" tippen. Betrag eingeben und wählen wie oft er gilt.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">Ausgabe löschen</div>
+          <div class="faq-a">Auf × tippen. Du kannst wählen: nur diesen Monat löschen, ab jetzt löschen, oder komplett entfernen.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">Was bedeuten die Tags (#fix, #lifestyle, #sparen)?</div>
+          <div class="faq-a">Tags helfen dir, dein Geld einzuteilen. #fix = Fixkosten wie Miete. #lifestyle = Dinge die du dir gönnst. #sparen = Geld das du zurücklegst. Ohne Tag erscheint ein Betrag nur wenn du etwas einträgst.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">Reihenfolge ändern</div>
+          <div class="faq-a">Das ⠿ Symbol links halten und ziehen — funktioniert bei Kategorien und Ausgaben.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">Notiz zu einer Ausgabe</div>
+          <div class="faq-a">Das ✎ Symbol rechts antippen — ein Textfeld öffnet sich direkt in der Zeile.</div>
+        </div>
       </div>
+
       <div class="faq-section">
         <div class="faq-section-title">◇ Optimierung</div>
-        <div class="faq-item"><div class="faq-q">50/30/20 Regel</div><div class="faq-a">Standard: 50% Fixkosten, 30% Lifestyle, 20% Sparen. Klicke auf die farbigen Prozent-Badges um deine eigenen Zielwerte festzulegen. ✓ grün = im Ziel.</div></div>
-        <div class="faq-item"><div class="faq-q">Fortschrittsbalken</div><div class="faq-a">Zeigt wie viel % deines Einkommens bereits verplant ist. Grün = gut, Gelb = über 80%, Rot = über 100%.</div></div>
+
+        <div class="faq-item">
+          <div class="faq-q">Was ist die 50/30/20 Regel?</div>
+          <div class="faq-a">Eine einfache Faustregel: 50% deines Einkommens für Fixkosten, 30% für Lifestyle, 20% fürs Sparen. Du kannst die Werte selbst anpassen — einfach auf den farbigen Prozent-Button tippen.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">Sparpotenzial</div>
+          <div class="faq-a">Zeigt wie viel Geld du noch hättest, wenn du alle Ausgaben bezahlt hast. Je größer der Betrag, desto mehr kannst du noch weglegen.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">Die Balken (#fix, #lifestyle, #sparen)</div>
+          <div class="faq-a">Zeigen wie viel du in jeder Kategorie ausgibst. Auf einen Balken tippen — er klappt auf und zeigt alle einzelnen Posten.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">Streak 🔥</div>
+          <div class="faq-a">Wie viele Monate in Folge du alle Limits eingehalten hast. Dran bleiben!</div>
+        </div>
       </div>
+
       <div class="faq-section">
         <div class="faq-section-title">◎ Sparziele</div>
-        <div class="faq-item"><div class="faq-q">Sparziel erstellen</div><div class="faq-a">Klicke auf "+ Neues Sparziel". Name eingeben → verknüpft automatisch mit gleichnamigem #sparen-Eintrag in Ausgaben.</div></div>
-        <div class="faq-item"><div class="faq-q">Monatliche Gutschrift</div><div class="faq-a">Beim Login wird die Sparrate automatisch zum "Gespart"-Stand addiert für alle vergangenen Monate seit dem letzten Login.</div></div>
-        <div class="faq-item"><div class="faq-q">Simulation</div><div class="faq-a">Navigiere in die Zukunft → die Karten zeigen den projizierten Stand basierend auf der aktuellen Rate. "accomplished by" zeigt das voraussichtliche Erreichungsdatum.</div></div>
-        <div class="faq-item"><div class="faq-q">Karten verschieben</div><div class="faq-a">Halte das ⠿ Symbol und ziehe die Karte an die gewünschte Position.</div></div>
+
+        <div class="faq-item">
+          <div class="faq-q">Sparziel anlegen</div>
+          <div class="faq-a">Auf "+ Neues Sparziel" tippen und einen Namen eingeben. Das Ziel verbindet sich automatisch mit dem gleichnamigen #sparen-Eintrag in deinen Ausgaben.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">Gespartes wird automatisch addiert</div>
+          <div class="faq-a">Jedes Mal wenn du dich einloggst, wird deine Sparrate für die vergangenen Monate automatisch dazugezählt. Du musst nichts manuell eintragen.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">Zukunft simulieren</div>
+          <div class="faq-a">Navigiere mit den Pfeilen in einen zukünftigen Monat — die Karten zeigen dir, wie viel du bis dann gespart haben wirst. "accomplished by" ist dein voraussichtliches Zieldatum.</div>
+        </div>
       </div>
+
       <div class="faq-section">
-        <div class="faq-section-title">◎ Jahresübersicht</div>
-        <div class="faq-item"><div class="faq-q">Monatsvergleich</div><div class="faq-a">Balkendiagramm zeigt Ausgaben pro Monat. Die goldene Linie = Einkommensniveau. Roter Balken = Ausgaben über Einnahmen.</div></div>
-        <div class="faq-item"><div class="faq-q">Jahresbilanz</div><div class="faq-a">Berücksichtigt createdAt (ab wann eine Ausgabe gilt) und deletedFrom (ab wann sie weggefallen ist) — nur tatsächlich aktive Monate werden summiert.</div></div>
+        <div class="faq-section-title">◫ Jahresübersicht</div>
+
+        <div class="faq-item">
+          <div class="faq-q">Monatsvergleich</div>
+          <div class="faq-a">Das Balkendiagramm zeigt deine Ausgaben für jeden Monat. Die goldene Linie ist dein Einkommensniveau. Rote Balken bedeuten: in diesem Monat hast du mehr ausgegeben als eingenommen.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">Jahresbilanz</div>
+          <div class="faq-a">Einnahmen minus Ausgaben für das gesamte Jahr — berücksichtigt automatisch, ab wann du eine Ausgabe hinzugefügt oder gelöscht hast.</div>
+        </div>
       </div>
+
       <div class="faq-section">
-        <div class="faq-section-title">◎ Profil &amp; Daten</div>
-        <div class="faq-item"><div class="faq-q">CSV exportieren</div><div class="faq-a">Menü → Profil → Daten exportieren.</div></div>
-        <div class="faq-item"><div class="faq-q">Automatische Backups</div><div class="faq-a">Jede Änderung wird automatisch gesichert (max. alle 5 Min., bis 30 Stände). Menü → Profil → Backups anzeigen → Wiederherstellen.</div></div>
-        <div class="faq-item"><div class="faq-q">Heute-Button</div><div class="faq-a">Klicke "heute" neben der Monatsnavigation um sofort zum aktuellen Monat zurückzuspringen.</div></div>
-        <div class="faq-item"><div class="faq-q">Mehrere Geräte</div><div class="faq-a">Daten werden über Firebase in Echtzeit synchronisiert.</div></div>
+        <div class="faq-section-title">⚙ Einstellungen &amp; Daten</div>
+
+        <div class="faq-item">
+          <div class="faq-q">Daten exportieren</div>
+          <div class="faq-a">Menü → Profil → Daten exportieren. Du bekommst eine CSV-Datei die du in Excel öffnen kannst.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">Automatische Sicherung</div>
+          <div class="faq-a">Deine Daten werden laufend gespeichert. Falls mal etwas schiefläuft: Menü → Profil → Backups anzeigen → einen alten Stand wiederherstellen.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">Auf mehreren Geräten nutzen</div>
+          <div class="faq-a">Einfach auf dem anderen Gerät einloggen — alles ist sofort da.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">Zum aktuellen Monat springen</div>
+          <div class="faq-a">Den "heute" Button neben den Monats-Pfeilen tippen.</div>
+        </div>
       </div>
+
     </div>
   </div>
 </div>

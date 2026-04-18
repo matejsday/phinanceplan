@@ -203,10 +203,11 @@ function rGoals() {
 
     const reachStr = done ? '✓ erreicht' : rd ? fmtDate(rd) : '—';
     const reachColor = done ? 'var(--sage2)' : '#6aab8e';
-    return '<div class="gc" draggable="true" data-drag-goal="' + g.id + '" style="border-left-color:' + col + '">' +
+    return '<div class="gc" draggable="true" data-drag-goal="' + g.id + '">' +
       '<div class="gc-inner">' +
 
       '<div class="gc-header" style="margin-bottom:2px">' +
+        '<span class="drag-handle" style="cursor:grab;color:var(--sage);opacity:.5;font-size:12px;margin-right:6px;flex-shrink:0;padding-top:2px">⠿</span>' +
         '<input class="gni" type="text" value="' + (g.name||'').replace(/"/g,'&quot;') + '" placeholder="Zielname" data-change-goal="' + g.id + '|name">' +
         '<button class="brmg" data-action="rG" data-id="' + g.id + '" style="opacity:.3;font-size:13px;line-height:1;flex-shrink:0">×</button>' +
       '</div>' +
@@ -357,17 +358,62 @@ function rYear() {
   const expY = allE().reduce((s,e) => s + yearTotalForEntry(e), 0);
   const savY = allE().filter(e => e.tag==='sparen').reduce((s,e) => s + yearTotalForEntry(e), 0);
   const bal  = incY - expY;
+
+  // ── Monatsvergleich (full-width hero) ──
+  const monthlyData = Array.from({length:12}, (_,mi) => {
+    const key = mk(Y, mi);
+    let exp = 0, inc = 0;
+    allE().forEach(e => {
+      if (e.createdAt && key < e.createdAt) return;
+      if (e.deletedFrom && key >= e.deletedFrom) return;
+      exp += e.amounts[key] !== undefined ? e.amounts[key] : ((e.fix||e.tag) ? (e.amounts.fixed||0) : 0);
+    });
+    getInc(Y, mi).forEach(e => { inc += getAmtFor(e, key); });
+    return {name: MN[mi], exp, inc};
+  });
+  const maxAll = Math.max(...monthlyData.map(d => Math.max(d.exp, d.inc)), 1);
+  const now = new Date();
+
   let h = '<div class="year-wrap">';
 
-  // Bilanz
-  h += '<div class="year-bilanz">';
-  h += '<div class="year-bilanz-card inc"><div class="year-bilanz-lbl">Einnahmen ' + Y + '</div><div class="year-bilanz-val">' + fmt(incY) + '</div></div>';
-  h += '<div class="year-bilanz-card exp"><div class="year-bilanz-lbl">Ausgaben ' + Y + '</div><div class="year-bilanz-val">' + fmt(expY) + '</div></div>';
-  h += '<div class="year-bilanz-card bal"><div class="year-bilanz-lbl">Jahresbilanz</div><div class="year-bilanz-val ' + (bal>=0?'pos':'neg') + '">' + fmt(bal) + '</div></div>';
-  h += '</div>';
+  // Section 1: Monatsvergleich — full width
+  h += '<div class="year-section year-section-chart">';
+  h += '<div class="year-section-title">Monatsvergleich <span>' + Y + '</span></div>';
+  h += '<div class="month-compare-grid">';
+  monthlyData.forEach((d, i) => {
+    const barPct  = Math.round(d.exp / maxAll * 100);
+    const incPct  = Math.round(d.inc / maxAll * 100);
+    const isCur   = i === now.getMonth() && Y === now.getFullYear();
+    const isPast  = Y < now.getFullYear() || (Y === now.getFullYear() && i < now.getMonth());
+    const isOver  = d.exp > d.inc && d.inc > 0;
+    const hasDat  = d.exp > 0 || d.inc > 0;
+    const barCol  = isOver ? 'var(--ember)' : isPast ? 'var(--sage2)' : 'var(--sage)';
+    const opacity = hasDat ? (isCur ? '1' : '.55') : '.2';
+    h += '<div class="mc' + (isCur ? ' mc-cur' : '') + (isOver ? ' mc-over' : '') + '">' +
+      '<div class="mc-amt">' + (hasDat ? fmt(d.exp).replace('€ ','') : '') + '</div>' +
+      '<div class="mc-track">' +
+        '<div class="mc-fill" style="height:' + barPct + '%;background:' + barCol + ';opacity:' + opacity + '"></div>' +
+        (d.inc > 0 ? '<div class="mc-inc-line" style="bottom:' + incPct + '%"></div>' : '') +
+      '</div>' +
+      '<div class="mc-lbl' + (isCur ? ' mc-lbl-cur' : '') + '">' + d.name.substring(0,3) + '</div>' +
+    '</div>';
+  });
+  h += '</div></div>';
 
-  // Ausgaben
-  h += '<div class="year-section" style="margin-top:20px">';
+  // Section 2: Bilanz + Ausgaben side by side (wrapped in a two-col row)
+  h += '<div class="year-row-2col">';
+
+  // Left: Jahresbilanz cards
+  h += '<div class="year-section year-section-bilanz">';
+  h += '<div class="year-section-title">Jahresbilanz <span>' + Y + '</span></div>';
+  h += '<div class="year-bilanz">';
+  h += '<div class="year-bilanz-card inc"><div class="year-bilanz-lbl">Einnahmen</div><div class="year-bilanz-val">' + fmt(incY) + '</div></div>';
+  h += '<div class="year-bilanz-card exp"><div class="year-bilanz-lbl">Ausgaben</div><div class="year-bilanz-val">' + fmt(expY) + '</div></div>';
+  h += '<div class="year-bilanz-card bal"><div class="year-bilanz-lbl">Bilanz</div><div class="year-bilanz-val ' + (bal>=0?'pos':'neg') + '">' + fmt(bal) + '</div></div>';
+  h += '</div></div>';
+
+  // Right: Ausgaben nach Kategorie
+  h += '<div class="year-section">';
   h += '<div class="year-section-title">Ausgaben nach Kategorie <span>' + fmt(expY) + '</span></div>';
   S.cats.forEach(c => {
     const cy = c.entries.reduce((s,e) => s + yearTotalForEntry(e), 0);
@@ -388,69 +434,33 @@ function rYear() {
   });
   h += '<div class="year-total-row"><span class="year-total-lbl">Gesamt Ausgaben</span><span class="year-total-amt neg">' + fmt(expY) + '</span></div>';
   h += '</div>';
+  h += '</div>'; // close year-row-2col
 
-  // Sparziele
+  // Section 3: Sparziele — full width
   if (S.goals.length) {
-    h += '<div class="year-section">';
+    h += '<div class="year-section year-section-goals">';
     h += '<div class="year-section-title">Sparziele <span>' + fmt(savY) + '/Jahr</span></div>';
+    h += '<div class="year-goals-grid">';
     S.goals.forEach((g,i) => {
       const col = CL[i % CL.length];
       const pct = g.target > 0 ? Math.min(100, Math.round(getCurrent(g, mk())/g.target*100)) : 0;
       let yearly = 0;
       for (let mi=0; mi<12; mi++) yearly += getAmtFor({amounts:g.amounts||{}}, mk(Y,mi));
-      h += '<div class="year-cat-row" style="background:var(--surface)">' +
-        '<span class="year-cat-name" style="display:flex;align-items:center;gap:8px">' +
+      h += '<div class="year-goal-card">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
           '<span style="width:8px;height:8px;border-radius:50%;background:' + col + ';flex-shrink:0;display:inline-block"></span>' +
-          g.name +
-        '</span>' +
-        '<span style="font-family:var(--mono);font-size:12px;color:var(--sage2)">' + fmt(yearly) + '/Jahr · ' + pct + '%</span>' +
+          '<span style="font-family:var(--sans);font-size:14px;font-weight:600;color:var(--ink)">' + (g.name||'—') + '</span>' +
+        '</div>' +
+        '<div style="font-family:var(--mono);font-size:11px;color:var(--ink3);margin-bottom:6px">' + fmt(yearly) + '/Jahr · ' + pct + '% erreicht</div>' +
+        '<div style="height:4px;background:rgba(0,0,0,.07);border-radius:2px;overflow:hidden">' +
+          '<div style="height:100%;width:' + pct + '%;background:' + col + ';border-radius:2px;transition:width .4s"></div>' +
+        '</div>' +
       '</div>';
     });
-    h += '</div>';
+    h += '</div></div>';
   }
 
-  // ── Monatsvergleich ──
-  h += '<div class="year-section">';
-  h += '<div class="year-section-title">Monatsvergleich <span>' + Y + '</span></div>';
-  const monthlyData = [];
-  for (let mi = 0; mi < 12; mi++) {
-    const mInc = getInc(Y, mi).reduce((s,e) => s + getAmtFor(e, mk(Y,mi)), 0);
-    const mExp = allE().reduce((s,e) => {
-      const key = mk(Y, mi);
-      const spec = e.amounts[key];
-      if (spec !== undefined && spec !== null) return s + spec;
-      if (e.fix || e.tag) return s + (e.amounts.fixed || 0);
-      return s;
-    }, 0);
-    monthlyData.push({name: MN[mi], inc: mInc, exp: mExp, bal: mInc - mExp});
-  }
-  const maxExp = Math.max(...monthlyData.map(d => d.exp), 1);
-  h += '<div class="month-compare-grid">';
-  const maxInc = Math.max(...monthlyData.map(d => d.inc), 1);
-  const maxAll = Math.max(maxExp, maxInc);
-  monthlyData.forEach((d, i) => {
-    const barPct  = Math.round(d.exp / maxAll * 100);
-    const incPct  = Math.round(d.inc / maxAll * 100);
-    const now = new Date();
-    const isCur   = i === now.getMonth() && Y === now.getFullYear();
-    const isPast  = Y < now.getFullYear() || (Y === now.getFullYear() && i < now.getMonth());
-    const isOver  = d.exp > d.inc && d.inc > 0;
-    const hasDat  = d.exp > 0 || d.inc > 0;
-    const barCol  = isOver ? 'var(--ember)' : isPast ? 'var(--sage2)' : 'var(--sage)';
-    const opacity = hasDat ? (isCur ? '1' : '.55') : '.2';
-    h += '<div class="mc' + (isCur ? ' mc-cur' : '') + (isOver ? ' mc-over' : '') + '">' +
-      '<div class="mc-amt">' + (hasDat ? fmt(d.exp).replace('€ ','') : '') + '</div>' +
-      '<div class="mc-track">' +
-        '<div class="mc-fill" style="height:' + barPct + '%;background:' + barCol + ';opacity:' + opacity + '"></div>' +
-        (d.inc > 0 ? '<div class="mc-inc-line" style="bottom:' + incPct + '%"></div>' : '') +
-      '</div>' +
-      '<div class="mc-lbl">' + d.name.substring(0,3) + '</div>' +
-    '</div>';
-  });
-  h += '</div>';
-  h += '</div>';
-
-  h += '</div>';
+  h += '</div>'; // close year-wrap
   const jc = document.getElementById('jc');
   if (jc) jc.innerHTML = h;
 }
